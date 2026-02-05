@@ -1,8 +1,14 @@
-import express from "express"
-import { addEmail } from "../controllers/job.controller.js"
+import express from "express";
+import { parseAndAddJob, getJobs, deleteJob } from "../controllers/job.controller.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
-const router = express.Router()
+const router = express.Router();
 
-router.post("/parse", addEmail)
+// All routes here are protected
+router.use(authMiddleware);
 
-export default router
+router.post("/parse", parseAndAddJob);
+router.get("/", getJobs);
+router.delete("/:id", deleteJob);
+
+export default router;
