@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import API from "../api";
 import { useNavigate } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { Plus, Search, SlidersHorizontal } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import JobCard from "../components/JobCard";
 import EmptyState from "../components/EmptyState";
@@ -14,6 +14,19 @@ const Dashboard = () => {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
 
+    // FEATURE 1: Search, Filter, Sort states
+    const [searchQuery, setSearchQuery] = useState("");
+    const [statusFilter, setStatusFilter] = useState("All");
+    const [sortOrder, setSortOrder] = useState("newest");
+
+    // FEATURE 3: Analytics stats
+    const [stats, setStats] = useState({
+        totalApplied: 0,
+        totalInterview: 0,
+        totalRejected: 0,
+        total: 0
+    });
+
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
         if (!storedUser) {
@@ -21,13 +34,20 @@ const Dashboard = () => {
         } else {
             setUser(JSON.parse(storedUser));
             fetchJobs();
+            fetchStats();
         }
     }, []);
 
+    // Fetch jobs with search/filter/sort
     const fetchJobs = async () => {
         try {
             setLoading(true);
-            const { data } = await API.get("/jobs");
+            const params = new URLSearchParams();
+            if (searchQuery) params.append('search', searchQuery);
+            if (statusFilter !== 'All') params.append('status', statusFilter);
+            params.append('sort', sortOrder);
+
+            const { data } = await API.get(`/jobs?${params.toString()}`);
             setJobs(data);
         } catch (err) {
             console.error("Failed to fetch jobs", err);
@@ -35,6 +55,23 @@ const Dashboard = () => {
             setLoading(false);
         }
     };
+
+    // FEATURE 3: Fetch analytics stats
+    const fetchStats = async () => {
+        try {
+            const { data } = await API.get("/jobs/stats");
+            setStats(data);
+        } catch (err) {
+            console.error("Failed to fetch stats", err);
+        }
+    };
+
+    // Re-fetch when filters change
+    useEffect(() => {
+        if (user) {
+            fetchJobs();
+        }
+    }, [searchQuery, statusFilter, sortOrder]);
 
     const handleAddJob = async () => {
         if (!emailText.trim()) return;
@@ -44,6 +81,7 @@ const Dashboard = () => {
             await API.post("/jobs/parse", { emailText });
             setEmailText("");
             fetchJobs();
+            fetchStats(); // Refresh stats after adding job
         } catch (err) {
             alert("Failed to parse email");
         } finally {
@@ -57,16 +95,10 @@ const Dashboard = () => {
         try {
             await API.delete(`/jobs/${id}`);
             fetchJobs();
+            fetchStats(); // Refresh stats after deleting
         } catch (err) {
             alert("Failed to delete");
         }
-    };
-
-    // Stats
-    const stats = {
-        Applied: jobs.filter((j) => j.status === "Applied").length,
-        Interview: jobs.filter((j) => j.status === "Interview").length,
-        Rejected: jobs.filter((j) => j.status === "Rejected").length,
     };
 
     return (
@@ -85,13 +117,25 @@ const Dashboard = () => {
                         <p className="text-gray-600">Track and manage your job applications</p>
                     </div>
 
-                    {/* Stats Row */}
-                    <div className="grid grid-cols-3 gap-6 mb-8">
+                    {/* FEATURE 3: Stats Row (using API data) */}
+                    <div className="grid grid-cols-4 gap-6 mb-8">
+                        <div className="bg-white rounded-lg border border-gray-200 p-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-gray-600 mb-1">Total</p>
+                                    <p className="text-3xl font-semibold text-gray-900">{stats.total}</p>
+                                </div>
+                                <div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center">
+                                    <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="bg-white rounded-lg border border-gray-200 p-6">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm font-medium text-gray-600 mb-1">Applied</p>
-                                    <p className="text-3xl font-semibold text-gray-900">{stats.Applied}</p>
+                                    <p className="text-3xl font-semibold text-gray-900">{stats.totalApplied}</p>
                                 </div>
                                 <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
                                     <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
@@ -103,7 +147,7 @@ const Dashboard = () => {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm font-medium text-gray-600 mb-1">Interview</p>
-                                    <p className="text-3xl font-semibold text-gray-900">{stats.Interview}</p>
+                                    <p className="text-3xl font-semibold text-gray-900">{stats.totalInterview}</p>
                                 </div>
                                 <div className="w-12 h-12 bg-amber-50 rounded-lg flex items-center justify-center">
                                     <div className="w-3 h-3 bg-amber-500 rounded-full"></div>
@@ -115,7 +159,7 @@ const Dashboard = () => {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm font-medium text-gray-600 mb-1">Rejected</p>
-                                    <p className="text-3xl font-semibold text-gray-900">{stats.Rejected}</p>
+                                    <p className="text-3xl font-semibold text-gray-900">{stats.totalRejected}</p>
                                 </div>
                                 <div className="w-12 h-12 bg-red-50 rounded-lg flex items-center justify-center">
                                     <div className="w-3 h-3 bg-red-500 rounded-full"></div>
@@ -144,9 +188,70 @@ const Dashboard = () => {
                         </button>
                     </div>
 
+                    {/* FEATURE 1: Search, Filter, Sort Controls */}
+                    <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+                        <div className="flex items-center gap-2 mb-4">
+                            <SlidersHorizontal size={20} className="text-gray-600" />
+                            <h3 className="text-lg font-semibold text-gray-900">Filter & Search</h3>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-4">
+                            {/* Search */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Search Company
+                                </label>
+                                <div className="relative">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                                    <input
+                                        type="text"
+                                        placeholder="e.g., Google"
+                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Status Filter */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Status
+                                </label>
+                                <select
+                                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                                    value={statusFilter}
+                                    onChange={(e) => setStatusFilter(e.target.value)}
+                                >
+                                    <option value="All">All Statuses</option>
+                                    <option value="Applied">Applied</option>
+                                    <option value="Interview">Interview</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+
+                            {/* Sort */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Sort By
+                                </label>
+                                <select
+                                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                                    value={sortOrder}
+                                    onChange={(e) => setSortOrder(e.target.value)}
+                                >
+                                    <option value="newest">Newest First</option>
+                                    <option value="oldest">Oldest First</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Jobs List */}
                     <div>
-                        <h2 className="text-lg font-semibold text-gray-900 mb-4">Your Applications</h2>
+                        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                            Your Applications ({jobs.length})
+                        </h2>
 
                         {loading ? (
                             <div className="grid gap-4">
@@ -163,7 +268,15 @@ const Dashboard = () => {
                         ) : (
                             <div className="grid gap-4">
                                 {jobs.map((job) => (
-                                    <JobCard key={job._id} job={job} onDelete={handleDelete} />
+                                    <JobCard
+                                        key={job._id}
+                                        job={job}
+                                        onDelete={handleDelete}
+                                        onUpdate={() => {
+                                            fetchJobs();
+                                            fetchStats();
+                                        }}
+                                    />
                                 ))}
                             </div>
                         )}
