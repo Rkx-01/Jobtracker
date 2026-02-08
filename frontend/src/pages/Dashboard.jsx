@@ -14,12 +14,12 @@ const Dashboard = () => {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
 
-    // FEATURE 1: Search, Filter, Sort states
+    
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("All");
     const [sortOrder, setSortOrder] = useState("newest");
 
-    // FEATURE 3: Analytics stats
+    
     const [stats, setStats] = useState({
         totalApplied: 0,
         totalInterview: 0,
@@ -38,7 +38,7 @@ const Dashboard = () => {
         }
     }, []);
 
-    // Fetch jobs with search/filter/sort
+    
     const fetchJobs = async () => {
         try {
             setLoading(true);
@@ -56,7 +56,7 @@ const Dashboard = () => {
         }
     };
 
-    // FEATURE 3: Fetch analytics stats
+    
     const fetchStats = async () => {
         try {
             const { data } = await API.get("/jobs/stats");
@@ -66,7 +66,7 @@ const Dashboard = () => {
         }
     };
 
-    // Re-fetch when filters change
+    
     useEffect(() => {
         if (user) {
             fetchJobs();
@@ -81,7 +81,7 @@ const Dashboard = () => {
             await API.post("/jobs/parse", { emailText });
             setEmailText("");
             fetchJobs();
-            fetchStats(); // Refresh stats after adding job
+            fetchStats(); 
         } catch (err) {
             alert("Failed to parse email");
         } finally {
@@ -95,7 +95,7 @@ const Dashboard = () => {
         try {
             await API.delete(`/jobs/${id}`);
             fetchJobs();
-            fetchStats(); // Refresh stats after deleting
+            fetchStats(); 
         } catch (err) {
             alert("Failed to delete");
         }
@@ -103,13 +103,13 @@ const Dashboard = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* Sidebar */}
+            
             <Sidebar user={user} />
 
-            {/* Main Content */}
+            
             <div className="ml-64 p-8">
                 <div className="max-w-6xl mx-auto">
-                    {/* Header */}
+                    
                     <div className="mb-8">
                         <h1 className="text-2xl font-semibold text-gray-900 mb-1">
                             Welcome back, {user?.name}
@@ -117,7 +117,7 @@ const Dashboard = () => {
                         <p className="text-gray-600">Track and manage your job applications</p>
                     </div>
 
-                    {/* FEATURE 3: Stats Row (using API data) */}
+                    
                     <div className="grid grid-cols-4 gap-6 mb-8">
                         <div className="bg-white rounded-lg border border-gray-200 p-6">
                             <div className="flex items-center justify-between">
@@ -168,7 +168,7 @@ const Dashboard = () => {
                         </div>
                     </div>
 
-                    {/* Add Job Section */}
+                    
                     <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
                         <h2 className="text-lg font-semibold text-gray-900 mb-4">Add New Job</h2>
                         <textarea
@@ -188,7 +188,7 @@ const Dashboard = () => {
                         </button>
                     </div>
 
-                    {/* FEATURE 1: Search, Filter, Sort Controls */}
+                    
                     <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
                         <div className="flex items-center gap-2 mb-4">
                             <SlidersHorizontal size={20} className="text-gray-600" />
@@ -196,7 +196,7 @@ const Dashboard = () => {
                         </div>
 
                         <div className="grid grid-cols-3 gap-4">
-                            {/* Search */}
+                            
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Search Company
@@ -213,7 +213,7 @@ const Dashboard = () => {
                                 </div>
                             </div>
 
-                            {/* Status Filter */}
+                            
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Status
@@ -230,7 +230,7 @@ const Dashboard = () => {
                                 </select>
                             </div>
 
-                            {/* Sort */}
+                            
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Sort By
@@ -247,7 +247,7 @@ const Dashboard = () => {
                         </div>
                     </div>
 
-                    {/* Jobs List */}
+                    
                     <div>
                         <h2 className="text-lg font-semibold text-gray-900 mb-4">
                             Your Applications ({jobs.length})

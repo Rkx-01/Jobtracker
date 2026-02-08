@@ -12,17 +12,10 @@ function App() {
       <Router>
         <ThemeToggle />
         <Routes>
-          {/* Landing page - now the default route */}
           <Route path="/" element={<LandingPage />} />
-
-          {/* Auth routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-
-          {/* Dashboard */}
           <Route path="/dashboard" element={<Dashboard />} />
-
-          {/* Redirect unknown routes to landing page */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Router>

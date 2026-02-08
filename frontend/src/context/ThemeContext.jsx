@@ -11,13 +11,11 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({ children }) => {
-    // Check localStorage for saved theme, default to 'light'
     const [theme, setTheme] = useState(() => {
         const saved = localStorage.getItem('theme');
         return saved || 'light';
     });
 
-    // Apply theme to document root
     useEffect(() => {
         const root = document.documentElement;
         root.classList.remove('light', 'dark');

@@ -7,10 +7,10 @@ const LandingPage = () => {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
             <Navbar />
 
-            {/* HERO SECTION */}
+            
             <section className="max-w-7xl mx-auto px-6 py-20">
                 <div className="grid md:grid-cols-2 gap-12 items-center">
-                    {/* Left: Text Content */}
+                    
                     <div>
                         <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                             Track your job applications{" "}
@@ -20,7 +20,7 @@ const LandingPage = () => {
                             A simple dashboard to manage applications, interviews and follow-ups in one place.
                         </p>
 
-                        {/* CTA Buttons */}
+                        
                         <div className="flex gap-4">
                             <Link
                                 to="/login"
@@ -38,10 +38,10 @@ const LandingPage = () => {
                         </div>
                     </div>
 
-                    {/* Right: Dashboard Mock */}
+                    
                     <div className="relative">
                         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 border border-gray-200 dark:border-gray-700">
-                            {/* Mock Stats */}
+                            
                             <div className="grid grid-cols-3 gap-4 mb-6">
                                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                                     <p className="text-xs text-blue-600 dark:text-blue-400 mb-1">Applied</p>
@@ -57,7 +57,7 @@ const LandingPage = () => {
                                 </div>
                             </div>
 
-                            {/* Mock Job Cards */}
+                            
                             <div className="space-y-3">
                                 {[1, 2, 3].map((i) => (
                                     <div key={i} className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
@@ -74,7 +74,7 @@ const LandingPage = () => {
                 </div>
             </section>
 
-            {/* FEATURES SECTION */}
+            
             <section className="max-w-7xl mx-auto px-6 py-20">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -86,7 +86,7 @@ const LandingPage = () => {
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-8">
-                    {/* Feature 1 */}
+                    
                     <div className="bg-white dark:bg-gray-800 p-8 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
                         <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center mb-4">
                             <Target className="text-indigo-600 dark:text-indigo-400" size={24} />
@@ -99,7 +99,7 @@ const LandingPage = () => {
                         </p>
                     </div>
 
-                    {/* Feature 2 */}
+                    
                     <div className="bg-white dark:bg-gray-800 p-8 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
                         <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center mb-4">
                             <StickyNote className="text-amber-600 dark:text-amber-400" size={24} />
@@ -112,7 +112,7 @@ const LandingPage = () => {
                         </p>
                     </div>
 
-                    {/* Feature 3 */}
+                    
                     <div className="bg-white dark:bg-gray-800 p-8 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
                         <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mb-4">
                             <BarChart3 className="text-green-600 dark:text-green-400" size={24} />
@@ -127,7 +127,7 @@ const LandingPage = () => {
                 </div>
             </section>
 
-            {/* HOW IT WORKS SECTION */}
+            
             <section className="max-w-5xl mx-auto px-6 py-20">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -139,7 +139,7 @@ const LandingPage = () => {
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-8">
-                    {/* Step 1 */}
+                    
                     <div className="text-center">
                         <div className="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
                             1
@@ -152,7 +152,7 @@ const LandingPage = () => {
                         </p>
                     </div>
 
-                    {/* Step 2 */}
+                    
                     <div className="text-center">
                         <div className="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
                             2
@@ -165,7 +165,7 @@ const LandingPage = () => {
                         </p>
                     </div>
 
-                    {/* Step 3 */}
+                    
                     <div className="text-center">
                         <div className="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
                             3
@@ -180,7 +180,7 @@ const LandingPage = () => {
                 </div>
             </section>
 
-            {/* FINAL CTA SECTION */}
+            
             <section className="max-w-4xl mx-auto px-6 py-20">
                 <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-2xl p-12 text-center shadow-2xl">
                     <h2 className="text-3xl font-bold text-white mb-4">
@@ -199,7 +199,7 @@ const LandingPage = () => {
                 </div>
             </section>
 
-            {/* FOOTER */}
+            
             <footer className="border-t border-gray-200 dark:border-gray-800 py-8">
                 <div className="max-w-7xl mx-auto px-6 text-center text-gray-600 dark:text-gray-400">
                     <p>© 2024 JobTracker. Built as a portfolio project.</p>

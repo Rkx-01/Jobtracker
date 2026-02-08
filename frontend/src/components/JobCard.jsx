@@ -78,7 +78,7 @@ const JobCard = ({ job, onDelete, onUpdate }) => {
 
                     {isExpanded && (
                         <div className="mt-4 space-y-4">
-                            {/* Notes */}
+                            
                             <div>
                                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     <StickyNote size={16} />
@@ -100,7 +100,7 @@ const JobCard = ({ job, onDelete, onUpdate }) => {
                                 </button>
                             </div>
 
-                            {/* Follow-up Date */}
+                            
                             <div>
                                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     <Calendar size={16} />
@@ -123,7 +123,7 @@ const JobCard = ({ job, onDelete, onUpdate }) => {
                                 </div>
                             </div>
 
-                            {/* Timeline */}
+                            
                             <Timeline statusHistory={job.statusHistory} />
                         </div>
                     )}

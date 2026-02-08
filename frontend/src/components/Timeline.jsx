@@ -32,7 +32,7 @@ const Timeline = ({ statusHistory }) => {
             <div className="space-y-2">
                 {statusHistory.map((entry, index) => (
                     <div key={index} className="flex items-start gap-3">
-                        {/* Dot indicator */}
+                        
                         <div className="flex flex-col items-center">
                             <div className={`w-2 h-2 rounded-full ${statusColors[entry.status]}`}></div>
                             {index < statusHistory.length - 1 && (
@@ -40,7 +40,7 @@ const Timeline = ({ statusHistory }) => {
                             )}
                         </div>
 
-                        {/* Content */}
+                        
                         <div className="flex-1 pb-2">
                             <p className="text-sm font-medium text-gray-900 dark:text-white">{entry.status}</p>
                             <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(entry.date)}</p>
