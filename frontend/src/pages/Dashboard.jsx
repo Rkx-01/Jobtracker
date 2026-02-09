@@ -5,6 +5,10 @@ import { Plus, Search, SlidersHorizontal } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import JobCard from "../components/JobCard";
 import EmptyState from "../components/EmptyState";
+import FunnelAnalytics from "../components/FunnelAnalytics";
+import FollowUpList from "../components/FollowUpList";
+import ResumePerformance from "../components/ResumePerformance";
+import SavedViewsDropdown from "../components/SavedViewsDropdown";
 
 const Dashboard = () => {
     const [jobs, setJobs] = useState([]);
@@ -14,18 +18,20 @@ const Dashboard = () => {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
 
-    
+
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("All");
     const [sortOrder, setSortOrder] = useState("newest");
 
-    
+
     const [stats, setStats] = useState({
         totalApplied: 0,
         totalInterview: 0,
+        totalOffer: 0,
         totalRejected: 0,
         total: 0
     });
+    const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -38,7 +44,7 @@ const Dashboard = () => {
         }
     }, []);
 
-    
+
     const fetchJobs = async () => {
         try {
             setLoading(true);
@@ -56,7 +62,7 @@ const Dashboard = () => {
         }
     };
 
-    
+
     const fetchStats = async () => {
         try {
             const { data } = await API.get("/jobs/stats");
@@ -66,7 +72,7 @@ const Dashboard = () => {
         }
     };
 
-    
+
     useEffect(() => {
         if (user) {
             fetchJobs();
@@ -81,7 +87,8 @@ const Dashboard = () => {
             await API.post("/jobs/parse", { emailText });
             setEmailText("");
             fetchJobs();
-            fetchStats(); 
+            fetchStats();
+            setRefreshKey(prev => prev + 1);
         } catch (err) {
             alert("Failed to parse email");
         } finally {
@@ -95,21 +102,28 @@ const Dashboard = () => {
         try {
             await API.delete(`/jobs/${id}`);
             fetchJobs();
-            fetchStats(); 
+            fetchStats();
+            setRefreshKey(prev => prev + 1);
         } catch (err) {
             alert("Failed to delete");
         }
     };
 
+    const applyView = (filters) => {
+        setSearchQuery(filters.searchQuery || "");
+        setStatusFilter(filters.status || "All");
+        setSortOrder(filters.sortOrder || "newest");
+    };
+
     return (
         <div className="min-h-screen bg-gray-50">
-            
+
             <Sidebar user={user} />
 
-            
+
             <div className="ml-64 p-8">
                 <div className="max-w-6xl mx-auto">
-                    
+
                     <div className="mb-8">
                         <h1 className="text-2xl font-semibold text-gray-900 mb-1">
                             Welcome back, {user?.name}
@@ -117,7 +131,7 @@ const Dashboard = () => {
                         <p className="text-gray-600">Track and manage your job applications</p>
                     </div>
 
-                    
+
                     <div className="grid grid-cols-4 gap-6 mb-8">
                         <div className="bg-white rounded-lg border border-gray-200 p-6">
                             <div className="flex items-center justify-between">
@@ -168,7 +182,14 @@ const Dashboard = () => {
                         </div>
                     </div>
 
-                    
+
+                    <FunnelAnalytics />
+
+                    <FollowUpList onRefresh={refreshKey} />
+
+                    <ResumePerformance />
+
+
                     <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
                         <h2 className="text-lg font-semibold text-gray-900 mb-4">Add New Job</h2>
                         <textarea
@@ -188,15 +209,23 @@ const Dashboard = () => {
                         </button>
                     </div>
 
-                    
+
                     <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+
+                        <div className="col-span-3 border-t border-gray-200 pt-4">
+                            <SavedViewsDropdown 
+                                currentFilters={{ searchQuery, status: statusFilter, sortOrder }}
+                                onApplyView={applyView}
+                            />
+                        </div>
+
                         <div className="flex items-center gap-2 mb-4">
                             <SlidersHorizontal size={20} className="text-gray-600" />
                             <h3 className="text-lg font-semibold text-gray-900">Filter & Search</h3>
                         </div>
 
                         <div className="grid grid-cols-3 gap-4">
-                            
+
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Search Company
@@ -213,7 +242,7 @@ const Dashboard = () => {
                                 </div>
                             </div>
 
-                            
+
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Status
@@ -230,7 +259,7 @@ const Dashboard = () => {
                                 </select>
                             </div>
 
-                            
+
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Sort By
@@ -247,7 +276,7 @@ const Dashboard = () => {
                         </div>
                     </div>
 
-                    
+
                     <div>
                         <h2 className="text-lg font-semibold text-gray-900 mb-4">
                             Your Applications ({jobs.length})

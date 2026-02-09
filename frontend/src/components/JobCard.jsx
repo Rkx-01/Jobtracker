@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Trash2, StickyNote, Calendar, ChevronDown, ChevronUp } from "lucide-react";
+import { Trash2, StickyNote, Calendar, ChevronDown, ChevronUp, FileText } from "lucide-react";
 import Timeline from "./Timeline";
+import StatusTimeline from "./StatusTimeline";
 import API from "../api";
 
 const JobCard = ({ job, onDelete, onUpdate }) => {
@@ -11,10 +12,13 @@ const JobCard = ({ job, onDelete, onUpdate }) => {
     );
     const [isSavingNotes, setIsSavingNotes] = useState(false);
     const [isSavingDate, setIsSavingDate] = useState(false);
+    const [status, setStatus] = useState(job.status);
+    const [resumeVersion, setResumeVersion] = useState(job.resumeVersion || "Default");
 
     const statusColors = {
         Applied: "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800",
         Interview: "bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800",
+        Offer: "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800",
         Rejected: "bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800",
     };
 
@@ -44,6 +48,26 @@ const JobCard = ({ job, onDelete, onUpdate }) => {
             alert("Failed to save follow-up date");
         } finally {
             setIsSavingDate(false);
+        }
+    };
+
+    const handleStatusChange = async (newStatus) => {
+        try {
+            await API.patch(`/jobs/${job._id}`, { status: newStatus });
+            setStatus(newStatus);
+            onUpdate();
+        } catch (error) {
+            alert("Failed to update status");
+        }
+    };
+
+    const handleResumeChange = async (newResume) => {
+        try {
+            await API.patch(`/jobs/${job._id}`, { resumeVersion: newResume });
+            setResumeVersion(newResume);
+            onUpdate();
+        } catch (error) {
+            alert("Failed to update resume version");
         }
     };
 
@@ -78,7 +102,7 @@ const JobCard = ({ job, onDelete, onUpdate }) => {
 
                     {isExpanded && (
                         <div className="mt-4 space-y-4">
-                            
+
                             <div>
                                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     <StickyNote size={16} />
@@ -100,7 +124,7 @@ const JobCard = ({ job, onDelete, onUpdate }) => {
                                 </button>
                             </div>
 
-                            
+
                             <div>
                                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     <Calendar size={16} />
@@ -123,7 +147,7 @@ const JobCard = ({ job, onDelete, onUpdate }) => {
                                 </div>
                             </div>
 
-                            
+
                             <Timeline statusHistory={job.statusHistory} />
                         </div>
                     )}

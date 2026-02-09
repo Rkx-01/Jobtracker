@@ -134,3 +134,111 @@ export const deleteJob = async (req, res) => {
     res.status(500).json({ error: "Failed to delete job" });
   }
 };
+
+export const updateJob = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    const job = await Job.findByIdAndUpdate(
+      id,
+      updates,
+      { new: true, runValidators: true }
+    );
+
+    if (!job) return res.status(404).json({ error: "Job not found" });
+
+    res.json(job);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update job" });
+  }
+};
+
+export const getEnhancedStats = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const totalApplied = await Job.countDocuments({ userId, status: 'Applied' });
+    const totalInterview = await Job.countDocuments({ userId, status: 'Interview' });
+    const totalOffer = await Job.countDocuments({ userId, status: 'Offer' });
+    const totalRejected = await Job.countDocuments({ userId, status: 'Rejected' });
+    const total = totalApplied + totalInterview + totalOffer + totalRejected;
+
+    const appliedToInterview = totalApplied > 0 ? ((totalInterview / totalApplied) * 100).toFixed(1) : 0;
+    const interviewToOffer = totalInterview > 0 ? ((totalOffer / totalInterview) * 100).toFixed(1) : 0;
+    const overallSuccess = total > 0 ? ((totalOffer / total) * 100).toFixed(1) : 0;
+
+    res.json({
+      totalApplied,
+      totalInterview,
+      totalOffer,
+      totalRejected,
+      total,
+      funnel: {
+        appliedToInterview: parseFloat(appliedToInterview),
+        interviewToOffer: parseFloat(interviewToOffer),
+        overallSuccess: parseFloat(overallSuccess)
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch enhanced stats" });
+  }
+};
+
+export const getFollowUps = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const needsFollowUp = await Job.find({
+      userId,
+      status: { $in: ['Applied', 'Interview'] },
+      updatedAt: { $lt: sevenDaysAgo }
+    }).sort({ updatedAt: 1 });
+
+    res.json(needsFollowUp);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch follow-ups" });
+  }
+};
+
+export const getResumeStats = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const jobs = await Job.find({ userId });
+
+    const resumeStats = {};
+
+    jobs.forEach(job => {
+      const resume = job.resumeVersion || 'Default';
+      if (!resumeStats[resume]) {
+        resumeStats[resume] = {
+          total: 0,
+          applied: 0,
+          interview: 0,
+          offer: 0,
+          rejected: 0
+        };
+      }
+
+      resumeStats[resume].total++;
+      const statusKey = job.status.toLowerCase();
+      if (resumeStats[resume][statusKey] !== undefined) {
+        resumeStats[resume][statusKey]++;
+      }
+    });
+
+    Object.keys(resumeStats).forEach(resume => {
+      const stats = resumeStats[resume];
+      stats.interviewRate = stats.total > 0 ? ((stats.interview / stats.total) * 100).toFixed(1) : 0;
+      stats.offerRate = stats.total > 0 ? ((stats.offer / stats.total) * 100).toFixed(1) : 0;
+      stats.interviewRate = parseFloat(stats.interviewRate);
+      stats.offerRate = parseFloat(stats.offerRate);
+    });
+
+    res.json(resumeStats);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch resume stats" });
+  }
+};

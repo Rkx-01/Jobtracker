@@ -10,50 +10,52 @@ const jobSchema = new mongoose.Schema({
     role: { type: String, default: "Unknown Role" },
     status: {
         type: String,
-        enum: ["Applied", "Interview", "Rejected"],
+        enum: ["Applied", "Interview", "Offer", "Rejected"],
         default: "Applied",
     },
     createdAt: { type: Date, default: Date.now },
 
-    // NEW FIELDS FOR ENHANCED FEATURES
-
-    // Feature 2: Notes per job
     notes: {
         type: String,
         default: ""
     },
 
-    // Feature 4: Follow-up reminders
     followUpDate: {
         type: Date,
         default: null
     },
 
-    // Feature 5: Status timeline/history
+    resumeVersion: {
+        type: String,
+        default: "Default"
+    },
+
     statusHistory: {
         type: [{
             status: {
                 type: String,
-                enum: ["Applied", "Interview", "Rejected"],
+                enum: ["Applied", "Interview", "Offer", "Rejected"],
             },
             date: {
                 type: Date,
                 default: Date.now
             }
         }],
-        default: [] // Initialize as empty array
+        default: []
     }
 });
 
-// Automatically initialize statusHistory when job is created
-// Using async function (modern Mongoose)
 jobSchema.pre('save', async function () {
-    // Only add to history if this is a new document and history is empty
-    if (this.isNew && (!this.statusHistory || this.statusHistory.length === 0)) {
+    if (this.isNew) {
         this.statusHistory = [{
             status: this.status,
             date: this.createdAt || new Date()
         }];
+    } else if (this.isModified('status')) {
+        this.statusHistory.push({
+            status: this.status,
+            date: new Date()
+        });
     }
 });
 
